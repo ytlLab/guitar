@@ -197,56 +197,55 @@
 
     async function fetchGuitarTab() {
         const urlInput = document.getElementById('yt-url').value.trim();
+        const btn = document.getElementById('generate-btn');
         const statusEl = document.getElementById('status');
         const outputEl = document.getElementById('tab-output');
-        const btn = document.getElementById('generate-btn');
 
         if (!urlInput) {
-            alert("請輸入 YouTube 網址！");
-            document.getElementById('yt-url').focus();
-            return;
-        }
-
-        btn.disabled = true;
-        statusEl.style.color = "#2563eb";
-        statusEl.innerText = "⏳ 正在透過後端伺服器解析 YouTube 影片真實音訊與標題，請稍候...";
-        outputEl.innerText = "";
-        originalTabText = "";
-
-        try {
-            const response = await fetch(BACKEND_API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: urlInput })
-            });
-
-            if (!response.ok) {
-                throw new Error(`伺服器連線失敗 (${response.status})`);
-            }
-
-            const data = await response.json();
-
-            if (data.status !== "success") {
-                throw new Error(data.message || "解析失敗");
-            }
-
-            originalTabText = data.tab;
-            currentOffset = 0;
-            document.getElementById('offset-val').innerText = "0";
-
-            renderSheet(originalTabText);
-            statusEl.style.color = "#16a34a";
-            statusEl.innerText = `✅ 已成功辨識「${data.title}」並生成吉他譜！`;
-
-        } catch (error) {
-            console.error(error);
-            alert("生成失敗：\n" + error.message);
-            statusEl.style.color = "#dc2626";
-            statusEl.innerText = "❌ 發生錯誤：" + error.message;
-        } finally {
-            btn.disabled = false;
-        }
+        alert("請輸入 YouTube 網址！");
+        return;
     }
+
+    btn.disabled = true;
+    statusEl.style.color = "#2563eb";
+    statusEl.innerText = "⏳ 正在透過後端伺服器分析 YouTube 音訊中，請稍候...";
+    outputEl.innerText = "";
+
+    try {
+        const response = await fetch(BACKEND_API_URL, {
+            method: "POST",
+            mode: "cors", // 明確指定跨來源模式
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ url: urlInput })
+        });
+
+        if (!response.ok) {
+            throw new Error(`伺服器回應異常狀態碼: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status !== "success") {
+            throw new Error(data.message || "解析失敗");
+        }
+
+        originalTabText = data.tab;
+        currentOffset = 0;
+        document.getElementById('offset-val').innerText = "0";
+        renderSheet(originalTabText);
+        statusEl.style.color = "#16a34a";
+        statusEl.innerText = `✅ 已成功辨識「${data.title}」！`;
+
+    } catch (error) {
+        console.error("連線錯誤詳情:", error);
+        alert("生成失敗：\n" + error.message);
+        statusEl.style.color = "#dc2626";
+        statusEl.innerText = "❌ 發生錯誤：" + error.message;
+    } finally {
+        btn.disabled = false;
+    }
+}
 
     function isChordLine(line) {
         if (line.trim().startsWith("[") || line.trim().startsWith("|")) return true;

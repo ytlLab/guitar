@@ -1,7 +1,7 @@
 # guitar
-├── app.py              # 後端 API (使用 Python FastAPI / Gradio)
-├── requirements.txt    # 依賴套件清單
-└── index.html          # 先前做好的吉他譜前端介面
+├── app.py              # 後端 API (使用 Python FastAPI / Gradio)</br>
+├── requirements.txt    # 依賴套件清單</br>
+└── index.html          # 先前做好的吉他譜前端介面</br>
 
 [GitHub Repo] (存放你的前後端開源專案程式碼)
      │
